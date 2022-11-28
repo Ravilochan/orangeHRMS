@@ -3,6 +3,8 @@ services:
     image: "orangehrm/orangehrm"
     container_name: "orange"
     restart: always
+    depends_on:
+      - mariadb
     ports:
       - "3000:80"
 

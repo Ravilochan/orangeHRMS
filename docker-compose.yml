@@ -17,6 +17,8 @@ services:
     image: "orangehrm/orangehrm"
     container_name: "orange"
     restart: always
+    depends_on:
+      - mariadb
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
