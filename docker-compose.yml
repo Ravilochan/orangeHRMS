@@ -54,7 +54,7 @@ networks:
     external: true
 
 volumes:
-  db-data:
+  db_data:
     external: true
 
 secrets:
