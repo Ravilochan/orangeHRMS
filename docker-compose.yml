@@ -1,0 +1,60 @@
+version: "3.9"
+services:
+  traefik:
+    image: "traefik"
+    container_name: "traefik"
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./acme.json:/acme.json"
+      - "./traefik.toml:/traefik.toml"
+      - "./traefik_dynamic.toml:/traefik_dynamic.toml"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  orange:
+    image: "orangehrm/orangehrm"
+    container_name: "orange"
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.orange.entrypoints=websecure"
+      - "traefik.http.routers.orange.rule=Host(`hrm.statledger.io`)"
+      - "traefik.http.routers.orange.tls=true"
+      - "traefik.http.routers.orange.tls.certresolver=lets-encrypt"
+
+  mariadb:
+    image: "mariadb:10.8"
+    container_name: "db"
+    command: "--default-authentication-plugin=mysql_native_password"
+    restart: always
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'mysqladmin ping -h 127.0.0.1 --password="$$(cat /run/secrets/db-password)" --silent',
+        ]
+      interval: 3s
+      retries: 5
+      start_period: 30s
+    secrets:
+      - db-password
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
+
+networks:
+  default:
+    name: proxy
+    external: true
+
+volumes:
+  db-data:
+    external: true
+
+secrets:
+  db-password:
+    file: password.txt
