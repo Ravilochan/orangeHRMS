@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   traefik:
     image: "traefik"
@@ -23,7 +22,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
       - "traefik.http.routers.orange.entrypoints=websecure"
-      - "traefik.http.routers.orange.rule=Host(`hrm.statledger.io`)"
+      - "traefik.http.routers.orange.rule=Host(`hrms.vaccineledger.com`)"
       - "traefik.http.routers.orange.tls=true"
       - "traefik.http.routers.orange.tls.certresolver=lets-encrypt"
 
